@@ -53,7 +53,7 @@ figure_b = plt.figure()
 axes_b = plt.axes(projection='3d')
 axes_b.plot_surface(X_b, Y_b, pdf_b, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
 
-# plt.show()
+plt.show()
 
 # same process for TEST data
 data_test = pd.read_csv('./data/test.txt', header=None, names=column_names)
