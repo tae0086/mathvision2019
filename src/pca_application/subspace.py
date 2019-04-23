@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-from mpl_toolkits import mplot3d
+from mpl_toolkits.mplot3d import Axes3D
 from scipy.spatial.distance import mahalanobis
 from scipy.stats import multivariate_normal
 from sklearn.decomposition import PCA
@@ -53,21 +53,21 @@ figure_b = plt.figure()
 axes_b = plt.axes(projection='3d')
 axes_b.plot_surface(X_b, Y_b, pdf_b, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
 
-plt.show()
+# plt.show()
 
 # same process for TEST data
 data_test = pd.read_csv('./data/test.txt', header=None, names=column_names)
-data_test_low = pca.fit_transform(data_test)
+data_test_low = np.matmul(data_test.values, pca.components_.transpose())
 test_sample_1 = data_test_low[0]
 test_sample_2 = data_test_low[1]
 
 # Mahalonobis distance
 # in apple A
-print(mahalanobis(u=test_sample_1, v=mean_a, VI=np.linalg.inv(cov_a)))  # 1.866
-print(mahalanobis(u=test_sample_2, v=mean_a, VI=np.linalg.inv(cov_a)))  # 5.999
+print(mahalanobis(u=test_sample_1, v=mean_a, VI=np.linalg.inv(cov_a)))  # 0.830
+print(mahalanobis(u=test_sample_2, v=mean_a, VI=np.linalg.inv(cov_a)))  # 8.112
 # in apple B
-print(mahalanobis(u=test_sample_1, v=mean_b, VI=np.linalg.inv(cov_b)))  # 6.179
-print(mahalanobis(u=test_sample_2, v=mean_b, VI=np.linalg.inv(cov_b)))  # 1.302
+print(mahalanobis(u=test_sample_1, v=mean_b, VI=np.linalg.inv(cov_b)))  # 4.771
+print(mahalanobis(u=test_sample_2, v=mean_b, VI=np.linalg.inv(cov_b)))  # 0.988
 
 # scatter plot with test data
 plt.plot(x_a, y_a, 'ro', label='apple A')
