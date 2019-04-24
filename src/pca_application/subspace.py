@@ -61,7 +61,7 @@ data_test_low = np.matmul(data_test.values, pca.components_.T)
 test_sample_1 = data_test_low[0]
 test_sample_2 = data_test_low[1]
 
-# Mahalonobis distance
+# Mahalanobis distance
 # in apple A
 print(mahalanobis(u=test_sample_1, v=mean_a, VI=np.linalg.inv(cov_a)))  # 0.8295541478289046
 print(mahalanobis(u=test_sample_2, v=mean_a, VI=np.linalg.inv(cov_a)))  # 8.112025001526678
