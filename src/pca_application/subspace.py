@@ -33,13 +33,13 @@ plt.show()
 # gaussian distribution for 3D gaussian plot
 # in apple A data
 mean_a = np.mean(data_low_a, axis=0)
-cov_a = np.cov(x_a, y_a)
+cov_a = np.cov(data_low_a.T)
 X_a, Y_a = np.meshgrid(x_a, y_a)
 pos_a = np.dstack((X_a, Y_a))
 pdf_a = multivariate_normal.pdf(x=pos_a, mean=mean_a, cov=cov_a)
 # in apple B data
 mean_b = np.mean(data_low_b, axis=0)
-cov_b = np.cov(x_b, y_b)
+cov_b = np.cov(data_low_b.T)
 X_b, Y_b = np.meshgrid(x_b, y_b)
 pos_b = np.dstack((X_b, Y_b))
 pdf_b = multivariate_normal.pdf(x=pos_b, mean=mean_b, cov=cov_b)
@@ -57,17 +57,17 @@ plt.show()
 
 # same process for TEST data
 data_test = pd.read_csv('./data/test.txt', header=None, names=column_names)
-data_test_low = np.matmul(data_test.values, pca.components_.transpose())
+data_test_low = np.matmul(data_test.values, pca.components_.T)
 test_sample_1 = data_test_low[0]
 test_sample_2 = data_test_low[1]
 
 # Mahalonobis distance
 # in apple A
-print(mahalanobis(u=test_sample_1, v=mean_a, VI=np.linalg.inv(cov_a)))  # 0.830
-print(mahalanobis(u=test_sample_2, v=mean_a, VI=np.linalg.inv(cov_a)))  # 8.112
+print(mahalanobis(u=test_sample_1, v=mean_a, VI=np.linalg.inv(cov_a)))  # 0.8295541478289046
+print(mahalanobis(u=test_sample_2, v=mean_a, VI=np.linalg.inv(cov_a)))  # 8.112025001526678
 # in apple B
-print(mahalanobis(u=test_sample_1, v=mean_b, VI=np.linalg.inv(cov_b)))  # 4.771
-print(mahalanobis(u=test_sample_2, v=mean_b, VI=np.linalg.inv(cov_b)))  # 0.988
+print(mahalanobis(u=test_sample_1, v=mean_b, VI=np.linalg.inv(cov_b)))  # 4.771411327871158
+print(mahalanobis(u=test_sample_2, v=mean_b, VI=np.linalg.inv(cov_b)))  # 0.9875768904541256
 
 # scatter plot with test data
 plt.plot(x_a, y_a, 'ro', label='apple A')
