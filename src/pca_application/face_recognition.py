@@ -3,6 +3,7 @@ from os.path import isdir
 
 import cv2
 import numpy as np
+from PIL import Image
 from matplotlib import pyplot as plt
 from scipy import spatial
 from sklearn.decomposition import PCA
@@ -10,10 +11,45 @@ from sklearn.decomposition import PCA
 
 def read_gray_image(path: str):
     """Read gray image and flatten(1-D)."""
-    image = cv2.imread(path)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    image = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
     image = image.flatten()
     return image
+
+
+def classify_faces(pca: PCA, train_faces: np.ndarray, test_faces: np.ndarray):
+    """Classify test faces based on train faces."""
+    # projection on subspace
+    train_faces_low = np.matmul(train_faces, pca.components_.T)
+    test_faces_low = np.matmul(test_faces, pca.components_.T)
+
+    # classification results for all test faces (class: 0~39)
+    classifications = []
+
+    # average of distance
+    for test_face_low in test_faces_low:
+        # distance per class
+        distances = []
+
+        # class loop
+        for i in range(num_of_classes):
+            # euclidean distance
+            euclidean = np.array(
+                [np.linalg.norm(test_face_low - face_low) for face_low in train_faces_low[9 * i:9 * (i + 1), :]]
+            ).mean()
+            # cosine distance
+            # cosine = np.array(
+            #     [spatial.distance.cosine(test_face_low, face_low) for face_low in faces_low[9 * i:9 * (i + 1), :]]
+            # ).mean()
+            distances.append(euclidean)
+            # distances.append(cosine)
+
+        classifications.append(np.argmin(distances))
+
+    # accuracy
+    corrects = sum([1 if i == c else 0 for i, c in enumerate(classifications)])
+    accuracy = corrects / len(classifications)
+
+    return classifications, accuracy
 
 
 if __name__ == '__main__':
@@ -54,7 +90,7 @@ if __name__ == '__main__':
 
     for i in range(10):
         plt.subplot(2, 5, i + 1)
-        plt.imshow(eigenfaces[i].reshape(56, 46))
+        plt.imshow(eigenfaces[i].reshape(56, 46), cmap='gray')
         plt.axis('off')
 
     plt.show()
@@ -76,7 +112,7 @@ if __name__ == '__main__':
     # visualize reconstruction faces
     plt.figure(2)
     plt.subplot(1, 5, 1)
-    plt.imshow(test_face.reshape(56, 46))
+    plt.imshow(test_face.reshape(56, 46), cmap='gray')
     plt.title('original')
     plt.axis('off')
 
@@ -85,7 +121,7 @@ if __name__ == '__main__':
         reconstruction = reconstructions[k]
 
         plt.subplot(1, 5, i + 2)
-        plt.imshow(reconstruction.reshape(56, 46))
+        plt.imshow(reconstruction.reshape(56, 46), cmap='gray')
         plt.title('k={}'.format(k))
         plt.axis('off')
 
@@ -105,36 +141,7 @@ if __name__ == '__main__':
 
     # classify test faces projected on subspace that has k=1, 10, 100, 200 dimensions
     for k in pca:
-        # projection on subspace
-        faces_low = np.matmul(faces, pca[k].components_.T)
-        test_faces_low = np.matmul(test_faces, pca[k].components_.T)
-
-        # classification results for all test faces (class: 0~39)
-        classifications = []
-
-        # average of distance
-        for test_face_low in test_faces_low:
-            # distance per class
-            distances = []
-
-            # class loop
-            for i in range(num_of_classes):
-                # euclidean distance
-                euclidean = np.array(
-                    [np.linalg.norm(test_face_low - face_low) for face_low in faces_low[9 * i:9 * (i + 1), :]]
-                ).mean()
-                # cosine distance
-                # cosine = np.array(
-                #     [spatial.distance.cosine(test_face_low, face_low) for face_low in faces_low[9 * i:9 * (i + 1), :]]
-                # ).mean()
-                distances.append(euclidean)
-                # distances.append(cosine)
-
-            classifications.append(np.argmin(distances))
-
-        # accuracy
-        corrects = sum([1 if i == c else 0 for i, c in enumerate(classifications)])
-        accuracy = corrects / len(classifications)
+        _, accuracy = classify_faces(pca=pca[k], train_faces=faces, test_faces=test_faces)
         print('in k={}, accuracy is {}.'.format(k, accuracy))
 
     # bar graph for classification results
@@ -186,3 +193,13 @@ if __name__ == '__main__':
     plt.ylabel('accuracy (%)')
     plt.legend()
     plt.show()
+
+    # who is the person most like me?
+    my_faces = [read_gray_image(root_dir + 'my_face_{}.jpg'.format(i + 1)) for i in range(3)]
+    my_faces = np.array(my_faces)
+    # pca for k=80
+    pca = PCA(n_components=80)
+    pca.fit(faces)
+    # classify my faces
+    classifications, _ = classify_faces(pca=pca, train_faces=faces, test_faces=my_faces)
+    print('my faces classification results: {}'.format(classifications))  # class: 0~39
