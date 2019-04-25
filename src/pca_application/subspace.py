@@ -10,10 +10,13 @@ from sklearn.decomposition import PCA
 column_names = ['당도', '밀도', '색상', '수분함량']
 data_a = pd.read_csv('./data/data_a.txt', header=None, names=column_names)
 data_b = pd.read_csv('./data/data_b.txt', header=None, names=column_names)
+data = pd.concat([data_a, data_b], axis=0)
 
 # PCA
 pca = PCA(n_components=2)
-data_low = pca.fit_transform(pd.concat([data_a, data_b], axis=0))
+pca.fit(data)
+data_low = np.matmul(data, pca.components_.T)
+data_transform = pca.transform(data)
 # print(pca.components_)
 data_low_a = data_low[:1000]
 data_low_b = data_low[1000:]
@@ -63,11 +66,11 @@ test_sample_2 = data_test_low[1]
 
 # Mahalanobis distance
 # in apple A
-print(mahalanobis(u=test_sample_1, v=mean_a, VI=np.linalg.inv(cov_a)))  # 0.8295541478289046
-print(mahalanobis(u=test_sample_2, v=mean_a, VI=np.linalg.inv(cov_a)))  # 8.112025001526678
+print(mahalanobis(u=test_sample_1, v=mean_a, VI=np.linalg.inv(cov_a)))  # 2.775561925738842
+print(mahalanobis(u=test_sample_2, v=mean_a, VI=np.linalg.inv(cov_a)))  # 6.268366366583429
 # in apple B
-print(mahalanobis(u=test_sample_1, v=mean_b, VI=np.linalg.inv(cov_b)))  # 4.771411327871158
-print(mahalanobis(u=test_sample_2, v=mean_b, VI=np.linalg.inv(cov_b)))  # 0.9875768904541256
+print(mahalanobis(u=test_sample_1, v=mean_b, VI=np.linalg.inv(cov_b)))  # 5.636964518484307
+print(mahalanobis(u=test_sample_2, v=mean_b, VI=np.linalg.inv(cov_b)))  # 0.5919154583689179
 
 # scatter plot with test data
 plt.plot(x_a, y_a, 'ro', label='apple A')
