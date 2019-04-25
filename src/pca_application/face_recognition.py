@@ -75,12 +75,16 @@ if __name__ == '__main__':
 
     # visualize reconstruction faces
     plt.figure(2)
+    plt.subplot(1, 5, 1)
+    plt.imshow(test_face.reshape(56, 46))
+    plt.title('original')
+    plt.axis('off')
 
     for i in range(4):
         k = num_of_eigenfaces[i]
         reconstruction = reconstructions[k]
 
-        plt.subplot(1, 4, i + 1)
+        plt.subplot(1, 5, i + 2)
         plt.imshow(reconstruction.reshape(56, 46))
         plt.title('k={}'.format(k))
         plt.axis('off')
@@ -155,6 +159,7 @@ if __name__ == '__main__':
     x = [50, 60, 70, 80, 90, 100]
     y = [75, 75, 75, 77.5, 77.5, 77.5]
     offset_x = -0.2
+    offset_y = 0.1
 
     plt.figure(4)
     plt.bar(range(6), y, width=0.5)
