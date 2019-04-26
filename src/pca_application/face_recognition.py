@@ -3,7 +3,6 @@ from os.path import isdir
 
 import cv2
 import numpy as np
-from PIL import Image
 from matplotlib import pyplot as plt
 from scipy import spatial
 from sklearn.decomposition import PCA
@@ -34,11 +33,13 @@ def classify_faces(pca: PCA, train_faces: np.ndarray, test_faces: np.ndarray):
         for i in range(num_of_classes):
             # euclidean distance
             euclidean = np.array(
-                [np.linalg.norm(test_face_low - face_low) for face_low in train_faces_low[9 * i:9 * (i + 1), :]]
+                [np.linalg.norm(test_face_low - train_face_low) for train_face_low in
+                 train_faces_low[9 * i:9 * (i + 1), :]]
             ).mean()
             # cosine distance
             # cosine = np.array(
-            #     [spatial.distance.cosine(test_face_low, face_low) for face_low in faces_low[9 * i:9 * (i + 1), :]]
+            #     [spatial.distance.cosine(test_face_low, train_face_low) for train_face_low in
+            #      train_faces_low[9 * i:9 * (i + 1), :]]
             # ).mean()
             distances.append(euclidean)
             # distances.append(cosine)
@@ -72,9 +73,8 @@ if __name__ == '__main__':
             face = read_gray_image(filepath)
             faces.append(face)
 
-    # normalize (convert to ndarray and normalize)
+    # to numpy array
     faces = np.array(faces)
-    faces -= faces.mean(axis=0).round().astype('uint8')
 
     # PCA for k=1, 10, 100, 200
     num_of_eigenfaces = [1, 10, 100, 200]
@@ -95,12 +95,13 @@ if __name__ == '__main__':
 
     plt.show()
 
-    # in 22th person, reconstruction using first image
-    test_face = read_gray_image(test_dir + 's22_1.png')
+    # in 27th person, reconstruction using first image
+    test_face = read_gray_image(test_dir + 's27_1.png')
     reconstructions = {}
 
     for k in pca:
         test_face_low = np.matmul(test_face, pca[k].components_.T)
+        # test_face_low = test_face.dot(pca[k].components_.T).flatten()
         # check if lengths of two(weights and eigenfaces) are same
         if len(test_face_low) != len(pca[k].components_):
             print('length of weight vector and eigenface matrix are not same.')
@@ -136,9 +137,8 @@ if __name__ == '__main__':
         test_face = read_gray_image(filepath)
         test_faces.append(test_face)
 
-    # normalize test faces
+    # to numpy array
     test_faces = np.array(test_faces)
-    test_faces -= test_faces.mean(axis=0).round().astype('uint8')
 
     # classify test faces projected on subspace that has k=1, 10, 100, 200 dimensions
     for k in pca:
@@ -148,7 +148,7 @@ if __name__ == '__main__':
     # bar graph for classification results
     # configuration
     x = [1, 10, 100, 200]
-    y = [17.5, 67.5, 77.5, 77.5]
+    y = [12.5, 80, 87.5, 87.5]
     offset_x = -0.1
     offset_y = 0.5
 
@@ -162,29 +162,29 @@ if __name__ == '__main__':
     plt.ylabel('accuracy (%)')
     plt.show()
 
-    # additional experiment 1: k=50, 60, 70, 80, 90
+    # additional experiment 1: k=20, 30, 40, 50, 60, 70, 80, 90
     # configuration
-    x = [50, 60, 70, 80, 90, 100]
-    y = [75, 75, 75, 77.5, 77.5, 77.5]
+    x = [20, 30, 40, 50, 60, 70, 80, 90, 100]
+    y = [85, 85, 87.5, 87.5, 87.5, 87.5, 87.5, 87.5, 87.5]
     offset_x = -0.2
     offset_y = 0.1
 
     plt.figure(4)
-    plt.bar(range(6), y, width=0.5)
+    plt.bar(range(9), y, width=0.5)
     # put value text on bar
-    for a, b in zip(range(6), y):
+    for a, b in zip(range(9), y):
         plt.text(a + offset_x, b + offset_y, str(b))
-    plt.xticks(range(6), x)
+    plt.xticks(range(9), x)
     plt.xlabel('k')
-    plt.ylim(70, 80)
+    plt.ylim(80, 90)
     plt.ylabel('accuracy (%)')
     plt.show()
 
     # additional experiment 2: cosine distance VS euclidean distance
     # configuration
     x = [1, 10, 100, 200]
-    y_cosine = [0, 60, 55, 47.5]
-    y_euclidean = [17.5, 67.5, 77.5, 77.5]
+    y_cosine = [2.5, 72.5, 82.5, 82.5]
+    y_euclidean = [12.5, 80, 87.5, 87.5]
 
     plt.figure(5)
     plt.plot(range(4), y_cosine, 'r-', label='cosine')
