@@ -106,7 +106,8 @@ if __name__ == '__main__':
             print('length of weight vector and eigenface matrix are not same.')
             break
 
-        reconstruction = sum([test_face_low[i] * pca[k].components_[i] for i in range(len(pca[k].components_))])
+        # reconstruction = sum([test_face_low[i] * pca[k].components_[i] for i in range(len(pca[k].components_))])
+        reconstruction = np.matmul(test_face_low, pca[k].components_)
         reconstructions[k] = reconstruction
 
     # visualize reconstruction faces
