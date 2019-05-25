@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from mpl_toolkits import mplot3d
+from mpl_toolkits.mplot3d import Axes3D
 from sympy import symbols, solve_poly_system
 
 
@@ -26,7 +27,7 @@ ax.set_xlabel('x')
 ax.set_ylabel('y')
 ax.set_zlabel('z')
 
-plt.show()
+# plt.show()
 
 # Q1-2
 # define function using symbol x and y
@@ -34,7 +35,6 @@ x, y = symbols('x y')
 z = (x + y) * (x * y + x * y ** 2)
 z_gradient = [z.diff(x), z.diff(y)]  # gradient of z
 # print(z_gradient)
-# TODO: 검토 필요 - (0, 0)에서의 gradient가 (0, 0)
 # print('({}, {})'.format(z_gradient[0].subs([(x, 0), (y, 0)]), z_gradient[1].subs([(x, 0), (y, 0)])))
 
 # Q1-3
@@ -71,4 +71,8 @@ for critical_x, critical_y in critical_points:
     print('* critical point ({}, {}) is {}'.format(critical_x, critical_y, result))
 
 # plot function and critical points simultaneously
-# TODO 기존 그래프에 critical point 표시하기
+styles = ['co', 'mo', 'yo', 'ko']
+for i in range(len(styles)):
+    ax.plot([critical_points[i][0]], [critical_points[i][1]], styles[i])
+ax.view_init(0, 0)  # rotation
+plt.show()
