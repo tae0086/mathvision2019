@@ -4,7 +4,7 @@ import numpy as np
 from colour import Color
 from matplotlib import pyplot as plt
 from mpl_toolkits import mplot3d
-from sympy import symbols, sin
+from sympy import symbols, sin, solve
 
 # 1. Draw a graph in 3d space
 x = np.linspace(start=-1, stop=5, num=30)
@@ -19,6 +19,9 @@ ax.plot_surface(x, y, z, cmap='gist_earth', antialiased=True)
 ax.set_xlabel('x')
 ax.set_ylabel('y')
 ax.set_zlabel('z')
+
+# ax.view_init(10, 40)  # rotation
+# plt.show()
 
 # 2. Optimization: gradient descent method
 x, y = symbols('x y')
@@ -52,5 +55,12 @@ ax.text(x=5, y=-4, z=60, s='optimal point: '
                                                              f.subs([(x, history[-1][0]),
                                                                      (y, history[-1][1])])), fontsize=12)
 
-ax.view_init(10, 40)  # rotation
-plt.show()
+# ax.view_init(30, 40)  # rotation
+# plt.show()
+
+# 3. Optimization: newton's method
+hessian = [
+    [f.diff(x).diff(x), f.diff(x).diff(y)],
+    [f.diff(y).diff(x), f.diff(y).diff(y)]
+]
+# print(hessian)
