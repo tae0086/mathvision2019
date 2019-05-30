@@ -99,7 +99,7 @@ for i in range(iteration):
 
 # print(history_newton)
 
-# Plot gradient descent history
+# Plot newton's history
 colors = list(Color('red').range_to(Color('green'), iteration + 1))
 for i, point in enumerate(history_newton):
     ax.plot([point[0]], [point[1]], [f.subs([(x, point[0]), (y, point[1])])], marker='o', color=colors[i].get_hex_l())
